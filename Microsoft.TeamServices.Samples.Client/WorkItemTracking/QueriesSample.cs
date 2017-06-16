@@ -11,32 +11,40 @@ namespace Microsoft.TeamServices.Samples.Client.WorkItemTracking
     [ClientSample(WitConstants.WorkItemTrackingWebConstants.RestAreaName, WitConstants.WorkItemTrackingRestResources.Queries)]
     public class QueriesSample : ClientSample
     {
-
         [ClientSampleMethod]
         public List<QueryHierarchyItem> GetListOfQueries()
         {
-            System.Guid projectId = ClientSampleHelpers.FindAnyProject(this.Context).Id;
+            Guid projectId = ClientSampleHelpers.FindAnyProject(this.Context).Id;
             
             VssConnection connection = Context.Connection;
             WorkItemTrackingHttpClient workItemTrackingClient = connection.GetClient<WorkItemTrackingHttpClient>();
-
-            List<QueryHierarchyItem> queries = workItemTrackingClient.GetQueriesAsync(projectId, QueryExpand.None, 1).Result;
-
-            if (queries == null)
+            
+            try
             {
-                Console.WriteLine("No queries found");
-            }
-            else
-            {
-                Console.WriteLine("Queries:");
+                List<QueryHierarchyItem> queries = workItemTrackingClient.GetQueriesAsync(projectId, QueryExpand.None, 1).Result;
 
-                foreach(var query in queries)
+                if (queries.Count == 0)
                 {
-                    Console.WriteLine("  {0} - {1}", query.Name, query.Path);
+                    Console.WriteLine("No queries found");
                 }
-            }
+                else
+                {
+                    Console.WriteLine("Queries:");
 
-            return queries;
+                    foreach (var query in queries)
+                    {
+                        Console.WriteLine("  {0} - {1}", query.Name, query.Path);
+                    }
+                }                
+
+                return queries;
+            }
+            catch (AggregateException ex)
+            {
+                Console.WriteLine("Error getting queries: " + ex.InnerException.Message);
+
+                return null;
+            }         
         }
 
         [ClientSampleMethod]
@@ -48,166 +56,200 @@ namespace Microsoft.TeamServices.Samples.Client.WorkItemTracking
             VssConnection connection = Context.Connection;
             WorkItemTrackingHttpClient workItemTrackingClient = connection.GetClient<WorkItemTrackingHttpClient>();
 
-            QueryHierarchyItem query = workItemTrackingClient.GetQueryAsync(project, queryName, null, 2).Result;
-
-            if (query == null)
+            try
             {
-                Console.WriteLine("No queries found for path '{0}'", queryName);
-            }
-            else
-            {
-                Console.WriteLine("Queries:");
+                QueryHierarchyItem query = workItemTrackingClient.GetQueryAsync(project, queryName, null, 2).Result;
 
-                foreach (var item in query.Children)
+                if (query == null)
                 {
-                    Console.WriteLine("{0}", item.Name);
-                    Console.WriteLine("  {0}", item.Id);
-                    Console.WriteLine("  {0}", item.Path);
-                    Console.WriteLine();
+                    Console.WriteLine("No queries found for path '{0}'", queryName);
                 }
-            }
+                else
+                {
+                    Console.WriteLine("Queries:");
 
-            return query;
+                    foreach (var item in query.Children)
+                    {
+                        Console.WriteLine("{0}", item.Name);
+                        Console.WriteLine("  {0}", item.Id);
+                        Console.WriteLine("  {0}", item.Path);
+                        Console.WriteLine();
+                    }
+                }
+
+                return query;
+            }
+            catch (AggregateException ex)
+            {
+                Console.WriteLine("Error getting query or folder: " + ex.InnerException.Message);
+
+                return null;
+            }
+            
         }
 
         [ClientSampleMethod]
         public List<QueryHierarchyItem> GetListOfQueriesAndFoldersWithOptions()
         {
-            System.Guid projectId = ClientSampleHelpers.FindAnyProject(this.Context).Id;
+            Guid projectId = ClientSampleHelpers.FindAnyProject(this.Context).Id;
 
             VssConnection connection = Context.Connection;
             WorkItemTrackingHttpClient workItemTrackingClient = connection.GetClient<WorkItemTrackingHttpClient>();
 
-            List<QueryHierarchyItem> queries = workItemTrackingClient.GetQueriesAsync(projectId, QueryExpand.All, 1).Result;
+            try
+            {  
+                List<QueryHierarchyItem> queries = workItemTrackingClient.GetQueriesAsync(projectId, QueryExpand.All, 1).Result;
 
-            if (queries == null)
-            {
-                Console.WriteLine("No queries found");
-            }
-            else
-            {
-                Console.WriteLine("Queries:");
-
-                foreach (var query in queries)
+                if (queries.Count == 0)
                 {
-                    Console.WriteLine("  {0} - {1}", query.Name, query.Path);
+                    Console.WriteLine("No queries found");
                 }
-            }
+                else
+                {
+                    Console.WriteLine("Queries:");
 
-            return queries;
+                    foreach (var query in queries)
+                    {
+                        Console.WriteLine("  {0} - {1}", query.Name, query.Path);
+                    }
+                }
+
+                return queries;
+            }
+            catch (AggregateException ex)
+            {
+                Console.WriteLine("Error getting query: " + ex.InnerException.Message);
+
+                return null;
+            }
         }
 
         [ClientSampleMethod]
         public List<QueryHierarchyItem> GetListOfQueriesAndFoldersIncludeDeleted()
         {
-            System.Guid projectId = ClientSampleHelpers.FindAnyProject(this.Context).Id;
+            Guid projectId = ClientSampleHelpers.FindAnyProject(this.Context).Id;
 
             VssConnection connection = Context.Connection;
             WorkItemTrackingHttpClient workItemTrackingClient = connection.GetClient<WorkItemTrackingHttpClient>();
 
-            List<QueryHierarchyItem> queries = workItemTrackingClient.GetQueriesAsync(projectId, QueryExpand.None, 1, true).Result;
-
-            if (queries == null)
+            try
             {
-                Console.WriteLine("No queries found");
-            }
-            else
-            {
-                Console.WriteLine("Queries:");
-
-                foreach (var query in queries)
+                List<QueryHierarchyItem> queries = workItemTrackingClient.GetQueriesAsync(projectId, QueryExpand.None, 1, true).Result;
+                
+                if (queries.Count == 0)
                 {
-                    Console.WriteLine("  {0} - {1}", query.Name, query.Path);
+                    Console.WriteLine("No queries found");
                 }
-            }
+                else
+                {
+                    Console.WriteLine("Queries:");
 
-            return queries;
+                    foreach (var query in queries)
+                    {
+                        Console.WriteLine("  {0} - {1}", query.Name, query.Path);
+                    }
+                }
+
+                return queries;
+            }
+            catch (AggregateException ex)
+            {
+                Console.WriteLine("Error getting query: " + ex.InnerException.Message);
+
+                return null;
+            }
         }
 
         [ClientSampleMethod]
         public QueryHierarchyItem GetQueryOrFolderById()
         {
-            System.Guid projectId = ClientSampleHelpers.FindAnyProject(this.Context).Id;
-            string queryId = "2614c4de-be48-4735-9fdc-9656f55c495f";
+            Guid projectId = ClientSampleHelpers.FindAnyProject(this.Context).Id;
+            string queryId = "a2108d31-086c-4fb0-afda-097e4cc46df4"; //assigned to me query
 
             VssConnection connection = Context.Connection;
             WorkItemTrackingHttpClient workItemTrackingClient = connection.GetClient<WorkItemTrackingHttpClient>();
 
-            QueryHierarchyItem query = workItemTrackingClient.GetQueryAsync(projectId, queryId).Result;
+            try
+            {            
+                QueryHierarchyItem query = workItemTrackingClient.GetQueryAsync(projectId, queryId).Result;
 
-            if (query == null)
-            {
-                Console.WriteLine("Query not found");
-            }
-            else
-            {
                 Console.WriteLine("Id:         {0}", query.Id);
                 Console.WriteLine("Name:       {0}", query.Name);
-                Console.WriteLine("Path:       {0}", query.Path);         
-            }
+                Console.WriteLine("Path:       {0}", query.Path);
 
-            return query;
+                return query;
+            }        
+            catch (AggregateException ex)
+            {
+                Console.WriteLine("Error getting query: " + ex.InnerException.Message);
+
+                return null;
+            }           
         }
 
         [ClientSampleMethod]
         public QueryHierarchyItem GetQueryOrFolderByName()
         {
-            System.Guid projectId = ClientSampleHelpers.FindAnyProject(this.Context).Id;
+            Guid projectId = ClientSampleHelpers.FindAnyProject(this.Context).Id;
             string queryName = "Shared Queries/Current Iteration/Active Bugs";
 
             VssConnection connection = Context.Connection;
             WorkItemTrackingHttpClient workItemTrackingClient = connection.GetClient<WorkItemTrackingHttpClient>();
 
-            QueryHierarchyItem query = workItemTrackingClient.GetQueryAsync(projectId, queryName).Result;
+            try
+            {
+                QueryHierarchyItem query = workItemTrackingClient.GetQueryAsync(projectId, queryName).Result;
 
-            if (query == null)
-            {
-                Console.WriteLine("Query not found");
-            }
-            else
-            {
                 Console.WriteLine("Id:         {0}", query.Id);
                 Console.WriteLine("Name:       {0}", query.Name);
-                Console.WriteLine("Path:       {0}", query.Path);              
-            }
+                Console.WriteLine("Path:       {0}", query.Path);
 
-            return query;
+                return query;
+            }
+            catch (AggregateException ex)
+            {
+                Console.WriteLine("Error getting query: " + ex.InnerException.Message);
+
+                return null;
+            }           
         }
 
         [ClientSampleMethod]
         public QueryHierarchyItem GetDeletedQueryOrFolderById()
         {
-            System.Guid projectId = ClientSampleHelpers.FindAnyProject(this.Context).Id;
+            Guid projectId = ClientSampleHelpers.FindAnyProject(this.Context).Id;
             string queryId = "2614c4de-be48-4735-9fdc-9656f55c495f";
 
             VssConnection connection = Context.Connection;
             WorkItemTrackingHttpClient workItemTrackingClient = connection.GetClient<WorkItemTrackingHttpClient>();
 
-            QueryHierarchyItem query = workItemTrackingClient.GetQueryAsync(projectId, queryId, null, 1, true).Result;
+            try
+            {
+                QueryHierarchyItem query = workItemTrackingClient.GetQueryAsync(projectId, queryId, null, 1, true).Result;
 
-            if (query == null)
-            {
-                Console.WriteLine("Query not found");
-            }
-            else
-            {
                 Console.WriteLine("Id:         {0}", query.Id);
                 Console.WriteLine("Name:       {0}", query.Name);
-                Console.WriteLine("Path:       {0}", query.Path);       
-            }
+                Console.WriteLine("Path:       {0}", query.Path);
 
-            return query;
+                return query;
+            }
+            catch (AggregateException ex)
+            {
+                Console.WriteLine("Error getting query: " + ex.InnerException.Message);
+
+                return null;
+            }           
         }
 
         [ClientSampleMethod]
         public QueryHierarchyItem CreateQuery()
         {
-            System.Guid projectId = ClientSampleHelpers.FindAnyProject(this.Context).Id;
-            string queryPath = "Shared Queries";
+            Guid projectId = ClientSampleHelpers.FindAnyProject(this.Context).Id;
+            string queryPath = "My Queries";
 
             QueryHierarchyItem postedQuery = new QueryHierarchyItem()
             {
-                Name = "Sample",   
+                Name = "Sample Query",   
                 Wiql = "Select [System.Id], [System.Title], [System.State] From WorkItems Where [System.WorkItemType] = 'Bug' order by [Microsoft.VSTS.Common.Priority] asc, [System.CreatedDate] desc"
             };
 
@@ -217,7 +259,8 @@ namespace Microsoft.TeamServices.Samples.Client.WorkItemTracking
             try
             {
                 QueryHierarchyItem query = workItemTrackingClient.CreateQueryAsync(postedQuery, projectId, queryPath).Result;
-
+                ClientSampleHelpers.SetQueryId(this.Context, query.Id);
+                
                 Console.WriteLine("Query Successfully Created");
                 Console.WriteLine("Id:         {0}", query.Id);
                 Console.WriteLine("Name:       {0}", query.Name);
@@ -225,7 +268,7 @@ namespace Microsoft.TeamServices.Samples.Client.WorkItemTracking
 
                 return query;
             }
-            catch (System.AggregateException ex)
+            catch (AggregateException ex)
             {
                 if (ex.InnerException.Message.Contains("TF237018"))
                 {
@@ -241,40 +284,41 @@ namespace Microsoft.TeamServices.Samples.Client.WorkItemTracking
         [ClientSampleMethod]
         public QueryHierarchyItem CreateFolder()
         {
-            System.Guid projectId = ClientSampleHelpers.FindAnyProject(this.Context).Id;
+            Guid projectId = ClientSampleHelpers.FindAnyProject(this.Context).Id;
             string queryPath = "Shared Queries";
 
             QueryHierarchyItem postedQuery = new QueryHierarchyItem()
             {
-                Name = "Folder " + System.Guid.NewGuid().ToString(), //random folder name
+                Name = "Sample Folder",
                 IsFolder = true
             };
 
             VssConnection connection = Context.Connection;
             WorkItemTrackingHttpClient workItemTrackingClient = connection.GetClient<WorkItemTrackingHttpClient>();
 
-            QueryHierarchyItem query = workItemTrackingClient.CreateQueryAsync(postedQuery, projectId, queryPath).Result;
+            try
+            {
+                QueryHierarchyItem query = workItemTrackingClient.CreateQueryAsync(postedQuery, projectId, queryPath).Result;
 
-            if (query == null)
-            {
-                Console.WriteLine("Error creating folder");
-            }
-            else
-            {
                 Console.WriteLine("Folder Successfully Created");
                 Console.WriteLine("Id:         {0}", query.Id);
                 Console.WriteLine("Name:       {0}", query.Name);
                 Console.WriteLine("Path:       {0}", query.Path);
-            }
 
-            return query;
+                return query;
+            }
+            catch (AggregateException ex)
+            {
+                Console.WriteLine("Error creating folder: " + ex.InnerException.Message);
+                return null;
+            }          
         }
 
         [ClientSampleMethod]
         public QueryHierarchyItem UpdateQuery()
         {
-            System.Guid projectId = ClientSampleHelpers.FindAnyProject(this.Context).Id;
-            string queryId = "2614c4de-be48-4735-9fdc-9656f55c495f";
+            Guid projectId = ClientSampleHelpers.FindAnyProject(this.Context).Id;
+            string queryId = ClientSampleHelpers.GetQueryId(this.Context).ToString();
 
             QueryHierarchyItem queryUpdate = new QueryHierarchyItem()
             {               
@@ -284,63 +328,65 @@ namespace Microsoft.TeamServices.Samples.Client.WorkItemTracking
             VssConnection connection = Context.Connection;
             WorkItemTrackingHttpClient workItemTrackingClient = connection.GetClient<WorkItemTrackingHttpClient>();
 
-            QueryHierarchyItem query = workItemTrackingClient.UpdateQueryAsync(queryUpdate, projectId, queryId).Result;
+            try
+            {
+                QueryHierarchyItem query = workItemTrackingClient.UpdateQueryAsync(queryUpdate, projectId, queryId).Result;
 
-            if (query == null)
-            {
-                Console.WriteLine("Error updating query");
-            }
-            else
-            {
                 Console.WriteLine("Query updated successfully");
                 Console.WriteLine("Id:         {0}", query.Id);
                 Console.WriteLine("Name:       {0}", query.Name);
-                Console.WriteLine("Path:       {0}", query.Path);                
-            }
+                Console.WriteLine("Path:       {0}", query.Path);
 
-            return query;
+                return query;
+            }
+            catch (AggregateException ex)
+            {
+                Console.WriteLine("Error updating query: " + ex.InnerException.Message);
+                return null;
+            }                
         }
 
         [ClientSampleMethod]
         public QueryHierarchyItem RenameQueryOrFolder()
         {
-            System.Guid projectId = ClientSampleHelpers.FindAnyProject(this.Context).Id;
-            string queryId = "2614c4de-be48-4735-9fdc-9656f55c495f";
+            Guid projectId = ClientSampleHelpers.FindAnyProject(this.Context).Id;
+            string queryId = ClientSampleHelpers.GetQueryId(this.Context).ToString();
 
             QueryHierarchyItem queryUpdate = new QueryHierarchyItem()
             {
-                Name = "Active Bugs"  
+                Name = "Renamed Sample Query"  
             };
 
             VssConnection connection = Context.Connection;
             WorkItemTrackingHttpClient workItemTrackingClient = connection.GetClient<WorkItemTrackingHttpClient>();
 
-            QueryHierarchyItem query = workItemTrackingClient.UpdateQueryAsync(queryUpdate, projectId, queryId).Result;
+            try
+            {           
+                QueryHierarchyItem query = workItemTrackingClient.UpdateQueryAsync(queryUpdate, projectId, queryId).Result;
 
-            if (query == null)
-            {
-                Console.WriteLine("Error updating query");
-            }
-            else
-            {
                 Console.WriteLine("Query renamed successfully");
                 Console.WriteLine("Id:         {0}", query.Id);
                 Console.WriteLine("Name:       {0}", query.Name);
-                Console.WriteLine("Path:       {0}", query.Path);         
-            }
+                Console.WriteLine("Path:       {0}", query.Path);
 
-            return query;
+                return query;
+            }
+            catch (AggregateException ex)
+            {
+                Console.WriteLine("Error updating query: " + ex.InnerException.Message);
+                return null;
+            }            
         }
 
         //[ClientSampleMethod]
         //public QueryHierarchyItem MoveQueryOrFolder()
         //{
-        //    System.Guid projectId = ClientSampleHelpers.FindAnyProject(this.Context).Id;
+        //    Guid projectId = ClientSampleHelpers.FindAnyProject(this.Context).Id;
         //    string queryId = "2614c4de-be48-4735-9fdc-9656f55c495f";
 
         //    QueryHierarchyItem queryUpdate = new QueryHierarchyItem()
         //    {
-        //        Id = new System.Guid("8a8c8212-15ca-41ed-97aa-1d6fbfbcd581") //where you want to move the queryId too
+        //        Id = new Guid("8a8c8212-15ca-41ed-97aa-1d6fbfbcd581") //where you want to move the queryId too
         //    };
 
         //    VssConnection connection = Context.Connection;
@@ -366,8 +412,8 @@ namespace Microsoft.TeamServices.Samples.Client.WorkItemTracking
         [ClientSampleMethod]
         public void DeleteQueryOrFolderById()
         {
-            System.Guid projectId = ClientSampleHelpers.FindAnyProject(this.Context).Id;
-            string queryId = "2614c4de-be48-4735-9fdc-9656f55c495f";            
+            Guid projectId = ClientSampleHelpers.FindAnyProject(this.Context).Id;
+            string queryId = ClientSampleHelpers.GetQueryId(this.Context).ToString();
 
             VssConnection connection = Context.Connection;
             WorkItemTrackingHttpClient workItemTrackingClient = connection.GetClient<WorkItemTrackingHttpClient>();
@@ -380,7 +426,7 @@ namespace Microsoft.TeamServices.Samples.Client.WorkItemTracking
         [ClientSampleMethod]
         public void DeleteQueryOrFolderByPath()
         {
-            System.Guid projectId = ClientSampleHelpers.FindAnyProject(this.Context).Id;
+            Guid projectId = ClientSampleHelpers.FindAnyProject(this.Context).Id;
             string path = "My Queries/Sample";         
 
             VssConnection connection = Context.Connection;
@@ -394,8 +440,8 @@ namespace Microsoft.TeamServices.Samples.Client.WorkItemTracking
         [ClientSampleMethod]
         public void UnDeleteQueryOrFolder()
         {
-            System.Guid projectId = ClientSampleHelpers.FindAnyProject(this.Context).Id;
-            string queryId = "2614c4de-be48-4735-9fdc-9656f55c495f";
+            Guid projectId = ClientSampleHelpers.FindAnyProject(this.Context).Id;
+            string queryId = ClientSampleHelpers.GetQueryId(this.Context).ToString();
 
             QueryHierarchyItem queryUpdate = new QueryHierarchyItem()
             {
@@ -413,7 +459,7 @@ namespace Microsoft.TeamServices.Samples.Client.WorkItemTracking
         [ClientSampleMethod]
         public WorkItemQueryResult ExecuteQuery()
         {
-            Guid queryId = Guid.Parse("6e511ae8-aafe-455a-b318-a4158bbd0f1e"); // TODO
+            Guid queryId = Guid.Parse("a2108d31-086c-4fb0-afda-097e4cc46df4"); // assigned to me
 
             VssConnection connection = Context.Connection;
             WorkItemTrackingHttpClient workItemTrackingClient = connection.GetClient<WorkItemTrackingHttpClient>();
@@ -424,7 +470,7 @@ namespace Microsoft.TeamServices.Samples.Client.WorkItemTracking
 
                 return queryResult;
             }
-            catch (System.AggregateException ex)
+            catch (AggregateException ex)
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine(ex.InnerException.Message);
