@@ -85,7 +85,7 @@ namespace GraphQuickStarts.Samples
                     foreach(GraphMembership membership in groupMemberships)
                     {
                         GraphGroup resolvedGroup = graphClient.GetGroupAsync(membership.ContainerDescriptor).Result;
-                        memberships.Add(String.Format("{0}\{1} --> {2}: {3}", user.DisplayName, user.PrincipalName, resolvedGroup.Origin, resolvedGroup.DisplayName));
+                        memberships.Add(String.Format("{0}:{1} --> {2}:{3}", user.DisplayName, user.PrincipalName, resolvedGroup.Origin, resolvedGroup.DisplayName));
                     }
                 }
 
